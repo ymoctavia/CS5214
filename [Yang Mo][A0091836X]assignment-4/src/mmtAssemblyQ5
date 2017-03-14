@@ -1,0 +1,503 @@
+	.file	"mmt.c"
+	.text
+	.p2align 4,,15
+	.globl	timeDiffenrenceMili
+	.type	timeDiffenrenceMili, @function
+timeDiffenrenceMili:
+.LFB24:
+	.cfi_startproc
+	subq	%rsi, %rcx
+	movss	.LC0(%rip), %xmm2
+	cvtsi2ssq	%rcx, %xmm1
+	subq	%rdi, %rdx
+	cvtsi2ssq	%rdx, %xmm0
+	divss	%xmm2, %xmm1
+	mulss	%xmm2, %xmm0
+	addss	%xmm1, %xmm0
+	ret
+	.cfi_endproc
+.LFE24:
+	.size	timeDiffenrenceMili, .-timeDiffenrenceMili
+	.p2align 4,,15
+	.globl	doMultiplication
+	.type	doMultiplication, @function
+doMultiplication:
+.LFB25:
+	.cfi_startproc
+	pushq	%r15
+	.cfi_def_cfa_offset 16
+	.cfi_offset 15, -16
+	movslq	%edi, %rax
+	imulq	$4000, %rax, %r15
+	salq	$2, %rax
+	pushq	%r14
+	.cfi_def_cfa_offset 24
+	.cfi_offset 14, -24
+	pushq	%r13
+	.cfi_def_cfa_offset 32
+	.cfi_offset 13, -32
+	movl	%edi, %r13d
+	pushq	%r12
+	.cfi_def_cfa_offset 40
+	.cfi_offset 12, -40
+	xorl	%r12d, %r12d
+	pushq	%rbp
+	.cfi_def_cfa_offset 48
+	.cfi_offset 6, -48
+	pushq	%rbx
+	.cfi_def_cfa_offset 56
+	.cfi_offset 3, -56
+	xorl	%ebx, %ebx
+	movq	%rax, -8(%rsp)
+.L3:
+	leal	0(%r13,%rbx), %r10d
+	movl	$matrixB, %r14d
+	xorl	%r11d, %r11d
+.L14:
+	cmpl	%r10d, %ebx
+	jge	.L7
+	cmpl	$999, %ebx
+	jg	.L7
+	movq	%r12, %rcx
+	movl	%ebx, %ebp
+.L12:
+	cmpl	%r10d, %r11d
+	jge	.L9
+	cmpl	$999, %r11d
+	jg	.L9
+	movslq	%ebp, %r9
+	movq	%r14, %r8
+	movl	%r11d, %esi
+	imulq	$1000, %r9, %r9
+	.p2align 4,,10
+	.p2align 3
+.L10:
+	movslq	%esi, %rdi
+	movq	%r8, %rdx
+	leaq	(%r9,%rdi), %rax
+	movss	matrixC(,%rax,4), %xmm1
+	xorl	%eax, %eax
+	.p2align 4,,10
+	.p2align 3
+.L15:
+	movss	matrixA(%rcx,%rax), %xmm0
+	addq	$4, %rax
+	mulss	(%rdx), %xmm0
+	addq	$4000, %rdx
+	cmpq	$4000, %rax
+	addss	%xmm0, %xmm1
+	jne	.L15
+	addl	$1, %esi
+	addq	%r9, %rdi
+	cmpl	%r10d, %esi
+	movss	%xmm1, matrixC(,%rdi,4)
+	je	.L9
+	addq	$4, %r8
+	cmpl	$1000, %esi
+	jne	.L10
+.L9:
+	addl	$1, %ebp
+	cmpl	%r10d, %ebp
+	je	.L7
+	addq	$4000, %rcx
+	cmpl	$1000, %ebp
+	jne	.L12
+.L7:
+	addl	%r13d, %r11d
+	addq	-8(%rsp), %r14
+	cmpl	$999, %r11d
+	jle	.L14
+	addq	%r15, %r12
+	cmpl	$999, %r10d
+	jg	.L2
+	movl	%r10d, %ebx
+	jmp	.L3
+.L2:
+	popq	%rbx
+	.cfi_def_cfa_offset 48
+	popq	%rbp
+	.cfi_def_cfa_offset 40
+	popq	%r12
+	.cfi_def_cfa_offset 32
+	popq	%r13
+	.cfi_def_cfa_offset 24
+	popq	%r14
+	.cfi_def_cfa_offset 16
+	popq	%r15
+	.cfi_def_cfa_offset 8
+	ret
+	.cfi_endproc
+.LFE25:
+	.size	doMultiplication, .-doMultiplication
+	.section	.rodata.str1.8,"aMS",@progbits,1
+	.align 8
+.LC2:
+	.string	"(Tile Size, Time Spent): (%d,%f)\n"
+	.text
+	.p2align 4,,15
+	.globl	MultiplyMatrix
+	.type	MultiplyMatrix, @function
+MultiplyMatrix:
+.LFB26:
+	.cfi_startproc
+	pushq	%r15
+	.cfi_def_cfa_offset 16
+	.cfi_offset 15, -16
+	movl	$matrixA, %edx
+	movl	$matrixB, %ecx
+	pushq	%r14
+	.cfi_def_cfa_offset 24
+	.cfi_offset 14, -24
+	pushq	%r13
+	.cfi_def_cfa_offset 32
+	.cfi_offset 13, -32
+	movl	%edi, %r13d
+	pushq	%r12
+	.cfi_def_cfa_offset 40
+	.cfi_offset 12, -40
+	pushq	%rbp
+	.cfi_def_cfa_offset 48
+	.cfi_offset 6, -48
+	pushq	%rbx
+	.cfi_def_cfa_offset 56
+	.cfi_offset 3, -56
+	subq	$56, %rsp
+	.cfi_def_cfa_offset 112
+	movaps	.LC1(%rip), %xmm0
+.L23:
+	xorl	%eax, %eax
+.L26:
+	movaps	%xmm0, (%rdx,%rax)
+	movaps	%xmm0, (%rcx,%rax)
+	addq	$16, %rax
+	cmpq	$4000, %rax
+	jne	.L26
+	addq	$4000, %rdx
+	addq	$4000, %rcx
+	cmpq	$matrixA+4000000, %rdx
+	jne	.L23
+	leaq	16(%rsp), %rdi
+	xorl	%esi, %esi
+	xorl	%ebp, %ebp
+	call	gettimeofday
+	movslq	%r13d, %rax
+	xorl	%edx, %edx
+	imulq	$4000, %rax, %r15
+	salq	$2, %rax
+	movq	%rax, 8(%rsp)
+.L27:
+	leal	0(%rbp,%r13), %r11d
+	movl	$matrixB, %r14d
+	xorl	%ebx, %ebx
+.L38:
+	cmpl	%r11d, %ebp
+	jge	.L31
+	cmpl	$999, %ebp
+	jg	.L31
+	movq	%rdx, %rsi
+	movl	%ebp, %r12d
+.L36:
+	cmpl	%r11d, %ebx
+	jge	.L33
+	cmpl	$999, %ebx
+	jg	.L33
+	movslq	%r12d, %r10
+	movq	%r14, %r9
+	movl	%ebx, %edi
+	imulq	$1000, %r10, %r10
+	.p2align 4,,10
+	.p2align 3
+.L34:
+	movslq	%edi, %r8
+	movq	%r9, %rcx
+	leaq	(%r10,%r8), %rax
+	movss	matrixC(,%rax,4), %xmm1
+	xorl	%eax, %eax
+	.p2align 4,,10
+	.p2align 3
+.L39:
+	movss	matrixA(%rsi,%rax), %xmm0
+	addq	$4, %rax
+	mulss	(%rcx), %xmm0
+	addq	$4000, %rcx
+	cmpq	$4000, %rax
+	addss	%xmm0, %xmm1
+	jne	.L39
+	addl	$1, %edi
+	addq	%r10, %r8
+	cmpl	%r11d, %edi
+	movss	%xmm1, matrixC(,%r8,4)
+	je	.L33
+	addq	$4, %r9
+	cmpl	$1000, %edi
+	jne	.L34
+.L33:
+	addl	$1, %r12d
+	cmpl	%r11d, %r12d
+	je	.L31
+	addq	$4000, %rsi
+	cmpl	$1000, %r12d
+	jne	.L36
+.L31:
+	addl	%r13d, %ebx
+	addq	8(%rsp), %r14
+	cmpl	$999, %ebx
+	jle	.L38
+	addq	%r15, %rdx
+	cmpl	$999, %r11d
+	jg	.L37
+	movl	%r11d, %ebp
+	jmp	.L27
+.L37:
+	leaq	32(%rsp), %rdi
+	xorl	%esi, %esi
+	call	gettimeofday
+	movq	32(%rsp), %rax
+	subq	16(%rsp), %rax
+	movl	%r13d, %edx
+	movss	.LC0(%rip), %xmm2
+	movl	$.LC2, %esi
+	movl	$1, %edi
+	cvtsi2ssq	%rax, %xmm0
+	movq	40(%rsp), %rax
+	subq	24(%rsp), %rax
+	cvtsi2ssq	%rax, %xmm1
+	movl	$1, %eax
+	mulss	%xmm2, %xmm0
+	divss	%xmm2, %xmm1
+	addss	%xmm1, %xmm0
+	unpcklps	%xmm0, %xmm0
+	cvtps2pd	%xmm0, %xmm0
+	call	__printf_chk
+	addq	$56, %rsp
+	.cfi_def_cfa_offset 56
+	popq	%rbx
+	.cfi_def_cfa_offset 48
+	popq	%rbp
+	.cfi_def_cfa_offset 40
+	popq	%r12
+	.cfi_def_cfa_offset 32
+	popq	%r13
+	.cfi_def_cfa_offset 24
+	popq	%r14
+	.cfi_def_cfa_offset 16
+	popq	%r15
+	.cfi_def_cfa_offset 8
+	ret
+	.cfi_endproc
+.LFE26:
+	.size	MultiplyMatrix, .-MultiplyMatrix
+	.section	.rodata.str1.1,"aMS",@progbits,1
+.LC3:
+	.string	"Enter Tile Size Range Start: "
+.LC4:
+	.string	"%d"
+.LC5:
+	.string	"Enter Tile Size Range End: "
+.LC6:
+	.string	"Enter Step Size: "
+	.section	.text.startup,"ax",@progbits
+	.p2align 4,,15
+	.globl	main
+	.type	main, @function
+main:
+.LFB27:
+	.cfi_startproc
+	pushq	%r15
+	.cfi_def_cfa_offset 16
+	.cfi_offset 15, -16
+	movl	$.LC3, %esi
+	movl	$1, %edi
+	xorl	%eax, %eax
+	pushq	%r14
+	.cfi_def_cfa_offset 24
+	.cfi_offset 14, -24
+	pushq	%r13
+	.cfi_def_cfa_offset 32
+	.cfi_offset 13, -32
+	pushq	%r12
+	.cfi_def_cfa_offset 40
+	.cfi_offset 12, -40
+	pushq	%rbp
+	.cfi_def_cfa_offset 48
+	.cfi_offset 6, -48
+	pushq	%rbx
+	.cfi_def_cfa_offset 56
+	.cfi_offset 3, -56
+	subq	$120, %rsp
+	.cfi_def_cfa_offset 176
+	call	__printf_chk
+	leaq	32(%rsp), %rsi
+	movl	$.LC4, %edi
+	xorl	%eax, %eax
+	call	__isoc99_scanf
+	movl	$.LC5, %esi
+	movl	$1, %edi
+	xorl	%eax, %eax
+	call	__printf_chk
+	leaq	48(%rsp), %rsi
+	movl	$.LC4, %edi
+	xorl	%eax, %eax
+	call	__isoc99_scanf
+	movl	$.LC6, %esi
+	movl	$1, %edi
+	xorl	%eax, %eax
+	call	__printf_chk
+	leaq	64(%rsp), %rsi
+	xorl	%eax, %eax
+	movl	$.LC4, %edi
+	call	__isoc99_scanf
+	movl	32(%rsp), %r15d
+	cmpl	48(%rsp), %r15d
+	movaps	.LC1(%rip), %xmm2
+	jg	.L63
+.L64:
+	movl	$matrixA, %edx
+	movl	$matrixB, %ecx
+.L66:
+	xorl	%eax, %eax
+.L50:
+	movaps	%xmm2, (%rdx,%rax)
+	movaps	%xmm2, (%rcx,%rax)
+	addq	$16, %rax
+	cmpq	$4000, %rax
+	jne	.L50
+	addq	$4000, %rdx
+	addq	$4000, %rcx
+	cmpq	$matrixA+4000000, %rdx
+	jne	.L66
+	leaq	80(%rsp), %rdi
+	xorl	%esi, %esi
+	xorl	%r12d, %r12d
+	movaps	%xmm2, 16(%rsp)
+	call	gettimeofday
+	movslq	%r15d, %rax
+	xorl	%ebx, %ebx
+	imulq	$4000, %rax, %r14
+	salq	$2, %rax
+	movaps	16(%rsp), %xmm2
+	movq	%rax, (%rsp)
+.L51:
+	leal	(%rbx,%r15), %r10d
+	movl	$matrixB, %r13d
+	xorl	%r11d, %r11d
+.L62:
+	cmpl	%r10d, %ebx
+	jge	.L55
+	cmpl	$999, %ebx
+	jg	.L55
+	movq	%r12, %rcx
+	movl	%ebx, %ebp
+.L60:
+	cmpl	%r10d, %r11d
+	jge	.L57
+	cmpl	$999, %r11d
+	jg	.L57
+	movslq	%ebp, %r9
+	movq	%r13, %r8
+	movl	%r11d, %esi
+	imulq	$1000, %r9, %r9
+	.p2align 4,,10
+	.p2align 3
+.L58:
+	movslq	%esi, %rdi
+	movq	%r8, %rdx
+	leaq	(%r9,%rdi), %rax
+	movss	matrixC(,%rax,4), %xmm1
+	xorl	%eax, %eax
+	.p2align 4,,10
+	.p2align 3
+.L65:
+	movss	matrixA(%rcx,%rax), %xmm0
+	addq	$4, %rax
+	mulss	(%rdx), %xmm0
+	addq	$4000, %rdx
+	cmpq	$4000, %rax
+	addss	%xmm0, %xmm1
+	jne	.L65
+	addl	$1, %esi
+	addq	%r9, %rdi
+	cmpl	%r10d, %esi
+	movss	%xmm1, matrixC(,%rdi,4)
+	je	.L57
+	addq	$4, %r8
+	cmpl	$1000, %esi
+	jne	.L58
+.L57:
+	addl	$1, %ebp
+	cmpl	%r10d, %ebp
+	je	.L55
+	addq	$4000, %rcx
+	cmpl	$1000, %ebp
+	jne	.L60
+.L55:
+	addl	%r15d, %r11d
+	addq	(%rsp), %r13
+	cmpl	$999, %r11d
+	jle	.L62
+	addq	%r14, %r12
+	cmpl	$999, %r10d
+	jg	.L61
+	movl	%r10d, %ebx
+	jmp	.L51
+.L61:
+	leaq	96(%rsp), %rdi
+	xorl	%esi, %esi
+	movaps	%xmm2, (%rsp)
+	call	gettimeofday
+	movl	%r15d, %edx
+	movl	$.LC2, %esi
+	movl	$1, %edi
+	movq	96(%rsp), %rax
+	subq	80(%rsp), %rax
+	cvtsi2ssq	%rax, %xmm0
+	movq	104(%rsp), %rax
+	subq	88(%rsp), %rax
+	cvtsi2ssq	%rax, %xmm1
+	movl	$1, %eax
+	mulss	.LC0(%rip), %xmm0
+	divss	.LC0(%rip), %xmm1
+	addss	%xmm1, %xmm0
+	unpcklps	%xmm0, %xmm0
+	cvtps2pd	%xmm0, %xmm0
+	call	__printf_chk
+	addl	64(%rsp), %r15d
+	cmpl	%r15d, 48(%rsp)
+	movaps	(%rsp), %xmm2
+	jge	.L64
+.L63:
+	addq	$120, %rsp
+	.cfi_def_cfa_offset 56
+	xorl	%eax, %eax
+	popq	%rbx
+	.cfi_def_cfa_offset 48
+	popq	%rbp
+	.cfi_def_cfa_offset 40
+	popq	%r12
+	.cfi_def_cfa_offset 32
+	popq	%r13
+	.cfi_def_cfa_offset 24
+	popq	%r14
+	.cfi_def_cfa_offset 16
+	popq	%r15
+	.cfi_def_cfa_offset 8
+	ret
+	.cfi_endproc
+.LFE27:
+	.size	main, .-main
+	.comm	matrixC,4000000,32
+	.comm	matrixB,4000000,32
+	.comm	matrixA,4000000,32
+	.section	.rodata.cst4,"aM",@progbits,4
+	.align 4
+.LC0:
+	.long	1148846080
+	.section	.rodata.cst16,"aM",@progbits,16
+	.align 16
+.LC1:
+	.long	1065353216
+	.long	1065353216
+	.long	1065353216
+	.long	1065353216
+	.ident	"GCC: (Ubuntu 4.8.4-2ubuntu1~14.04) 4.8.4"
+	.section	.note.GNU-stack,"",@progbits

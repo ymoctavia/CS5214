@@ -1,0 +1,190 @@
+/*
+  Author: Yang Mo
+  Matric No : A0091836X
+*/
+
+//Scanner Class for Cup-based Calculator
+
+import java_cup.runtime.*;
+import java.lang.String.*;
+import java.io.IOException;
+
+public class scanner {
+    
+    /* Holds the value of next read char */
+    protected static char nextChar;
+   
+    /* Used to track whether we are reading next char in the middle of an expression */
+    private boolean isExpressionStarted = false;
+
+    private SymbolFactory sf = new DefaultSymbolFactory();
+
+    /* Read next char of input */
+    protected void readNextChar() throws IOException{ 
+		nextChar = (char) System.in.read(); 
+    }
+
+    /* initialize the scanner */
+    public void init() throws IOException{ 
+		readNextChar(); 
+    }
+    
+    /* Start reading an expression, set the start flag to true */
+    private void startExpression(){
+    	isExpressionStarted = true;
+    }
+    
+    /* Finish reading an expression, set the start flag to false */
+    private void endExpression(){
+    	isExpressionStarted = false;
+    }
+
+    /* recognize and return the next complete token */
+    public Symbol getNextToken() throws IOException{
+
+		for (;;){
+		    switch (nextChar)
+			{	
+				/* Scan an number */
+				case '0': case '1': case '2': case '3': case '4':
+				case '5': case '6': case '7': case '8': case '9':
+				case '.': case 'e': case 'x': case 'E': case 'X':
+
+				return readNumber(); /* parse a input number and convert it to a double */
+
+				/* check newline character, return ENTER symbol if it is right after the expression */
+				case '\n': if(isExpressionStarted){
+								endExpression();
+								return sf.newSymbol("ENTER", sym.ENTER);
+				           } else {
+				           		// no expression before newline, proceed to read next char
+				           		readNextChar(); 
+				           		break;
+				           }
+						  
+				case '+': startExpression(); readNextChar(); return sf.newSymbol("PLUS", sym.PLUS);
+				case '-': startExpression(); readNextChar(); return sf.newSymbol("MINUS", sym.MINUS);
+				case '*': startExpression(); readNextChar(); return sf.newSymbol("TIMES", sym.TIMES);
+				case '/': startExpression(); readNextChar(); return sf.newSymbol("TIMES", sym.DIVIDE);
+				case '%': startExpression(); readNextChar(); return sf.newSymbol("TIMES", sym.MOD);
+				case '^': startExpression(); readNextChar(); return sf.newSymbol("EXPO", sym.EXPO);
+
+				case 's': 
+						  startExpression(); 
+						  readNextChar(); 
+
+						  /* scan for Square root : sqrt */
+						  if(nextChar == 'q'){
+						  	readNextChar();
+						  	if(nextChar == 'r'){
+						  		readNextChar();
+						  		if(nextChar == 't'){
+						  			readNextChar();
+						  			return sf.newSymbol("SQRT", sym.SQRT);
+						  		}	
+						  	}
+						  /* scan for sin */
+						  } else if(nextChar == 'i'){
+						  	readNextChar();
+						  	if(nextChar == 'n'){
+						  		readNextChar();
+						  		return sf.newSymbol("SIN", sym.SIN);
+						  	}
+						  }
+
+			    /* scan for cos */
+				case 'c': 
+						  startExpression(); 
+						  readNextChar(); 
+						  if(nextChar == 'o'){
+						  	readNextChar();
+						  	if(nextChar == 's'){
+						  		readNextChar();
+						  		return sf.newSymbol("COS", sym.COS);
+						  	}
+						  } 
+
+				/* scan for tan */
+				case 't': 
+						  startExpression(); 
+						  readNextChar(); 
+						  if(nextChar == 'a'){
+						  	readNextChar();
+						  	if(nextChar == 'n'){
+						  		readNextChar();
+						  		return sf.newSymbol("TAN", sym.TAN);
+						  	}
+						  } 
+
+				/* scan for log, ln, lt */
+				case 'l': 
+						  startExpression(); 
+						  readNextChar(); 
+						  if(nextChar == 'o'){
+						  	readNextChar();
+						  	if(nextChar == 'g'){
+						  		readNextChar();
+						  		return sf.newSymbol("LOG", sym.LOG);	// log
+						  	}
+						  } else if(nextChar == 'n'){
+						  	readNextChar();
+						  	return sf.newSymbol("LN", sym.LN);	        // ln, log with base e
+						  } else if(nextChar == 't'){
+						  	readNextChar();
+						  	return sf.newSymbol("LT", sym.LT);			// lt, log with base 10
+						  }
+						  
+				case '(': startExpression(); readNextChar(); return sf.newSymbol("LPAREN", sym.LPAREN);
+				case ')': startExpression(); readNextChar(); return sf.newSymbol("RPAREN", sym.RPAREN);
+				case ',': startExpression(); readNextChar(); return sf.newSymbol("COMMA", sym.COMMA);
+
+				/* ignore other characters */
+				default:
+				    readNextChar();
+				    break;
+			}
+		}
+    }
+
+
+    /* parse a input number and convert it to a double */
+    private Symbol readNumber() throws IOException{
+
+	    startExpression();
+	    double val = 0;
+	    boolean isHex = false;  // set the hex number flag to false
+	    String numString = "";  // initialize the number string 
+
+	    while ((nextChar >= '0' && nextChar <= '9') ||
+	    	   (nextChar >= 'A' && nextChar <= 'F') ||
+	    	   (nextChar >= 'a' && nextChar <= 'f') ||
+	    	    nextChar == '.' || nextChar == 'e'  || 
+	    	    nextChar == 'E' || nextChar == 'x'  || 
+	    	    nextChar == 'X'){
+
+	    		// Check if input number is an hex number
+	    		if(nextChar == 'x' || nextChar == 'X'){
+	    			isHex = true;
+	    		}
+
+	    		// appending the char to the number string
+	    		numString = numString + nextChar;
+				readNextChar();
+	    } 
+
+	    numString = numString.toLowerCase();
+
+	    System.out.println("number is " + numString);
+
+	    if(isHex){
+	    	// input is hex number, convert it into decimal double value
+	    	Long decimal = Long.parseLong(numString.substring(2), 16);
+	    	return sf.newSymbol("NUMBER", sym.NUMBER, decimal.doubleValue());
+	    } else {
+	    	// input is not hex number, convert it into double value
+	    	return sf.newSymbol("NUMBER", sym.NUMBER, Double.parseDouble(numString));
+		}
+
+    }
+
+};

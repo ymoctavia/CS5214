@@ -1,0 +1,141 @@
+/*
+  Author: Yang Mo
+  Matric No : A0091836X
+*/
+
+
+// CUP specification for a simple calculator
+
+import java_cup.runtime.*;
+
+parser code {:
+    	scanner scanner;
+    	Parser(scanner scanner){
+	   this.scanner = scanner;
+    	}	
+    :}
+
+/* Preliminaries to set up and use the scanner.  */
+init with {: scanner.init();                :};
+scan with {: return scanner.getNextToken(); :};
+
+/* Terminals (tokens returned by the scanner). */
+
+terminal           ENTER,       // \n --> user hits enter
+		   PLUS,        // +
+		   MINUS,       // - 
+		   TIMES, 	// *
+		   DIVIDE;	// /
+terminal           MOD, 	// %
+		   EXPO, 	// ^
+	           LN, 		// ln --> base is e
+	           LOG, 	// log(b,a) --> b:Base, a: Input  
+		   LT,  	// lt --> base is 10
+		   SQRT, 	// sqrt
+		   SIN, 	// sin
+	           COS, 	// cos
+		   TAN;		// tan
+terminal           UMINUS, 	// -
+		   LPAREN, 	// (
+		   RPAREN;	// )
+terminal           COMMA;     	// ,
+terminal Double    NUMBER;	
+
+/* Non-terminals */
+non terminal   expr_list, expr_part;
+non terminal   Double  expr;  // all numbers and results will be 
+			      // converted and using double
+
+/* Precedences */
+precedence left PLUS,   /* plus */
+		MINUS;  /* minus */
+
+precedence left TIMES,  /* times */
+		DIVIDE, /* divide */
+		MOD;    /* mod */
+
+precedence left EXPO,   /* Exponentiation */
+		LOG;    /* log(Base, Input) */
+
+precedence left UMINUS, /* Negative Sign */
+		SQRT,   /* Square Root */
+		LT, 	/* Log, Base 10 */
+		LN,     /* Log, Base e */
+		SIN, 	/* sin */
+		COS,    /* cos */
+		TAN;	/* tan */
+
+/* The grammar */
+expr_list ::= expr_list expr_part 
+	      | 
+              expr_part;
+
+expr_part ::= expr:e 
+	      	{: System.out.println("= " + e); :} 
+              ENTER              
+	      ;
+		
+	      /* Plus */
+expr      ::= expr:e1 PLUS expr:e2    
+	      	{: RESULT = e1 + e2; :} 
+	      | 
+	      /* Minus */
+              expr:e1 MINUS expr:e2    
+              	{: RESULT = e1 - e2; :} 
+	      | 
+	      /* Times */
+              expr:e1 TIMES expr:e2 
+	      	{: RESULT = e1 * e2; :} 
+	      | 
+	      /* Divide */
+              expr:e1 DIVIDE expr:e2 
+	      	{: RESULT = e1 / e2; :} 
+	      | 
+	      /* mod eg. 10%3--> Result is 1 */
+              expr:e1 MOD expr:e2 
+	      	{: RESULT = e1 % e2; :} 
+	      | 
+              /* log(Base, Input) eg. log(10,100) --> Result is 2 */
+	      LOG LPAREN expr:e1 COMMA expr:e2 RPAREN
+	      	{: RESULT = Math.log(e2)/Math.log(e1); :}
+	      | 
+	      /* ln(Input) eg. log(2) --> Result is 0.69314718056 */
+	      LN expr:e
+	      	{: RESULT = Math.log(e); :}
+	      | 
+	      /* lt(Input) Base is 10, eg. log(10) --> Result is 1 */
+	      LT expr:e
+	      	{: RESULT = Math.log(e)/Math.log(10); :}
+	      |
+              /* sin function */
+	      SIN expr:e
+	      	{: RESULT = Math.sin(Math.toRadians(e)); :}
+	      |
+	      /* cos function */
+	      COS expr:e
+	      {: RESULT = Math.cos(Math.toRadians(e)); :}
+	      |
+	      /* tan function */
+	      TAN expr:e
+	      	{: RESULT = Math.tan(Math.toRadians(e)); :}
+	      |
+	      /* exponentiation function eg. 2^2 --> Result is 4 */
+	      expr:e1 EXPO expr:e2
+	      	{: RESULT = Math.pow(e1, e2); :}
+	      |
+	      /* Square root function eg. sqrt4 --> Result is 2 */
+	      SQRT expr:e
+	      	{: RESULT = Math.pow(e,0.5); :}
+	      | 
+              NUMBER:n                 
+	      	{: RESULT = n; :} 
+	      | 
+              /* Uminus, eg. --1 will be 1 */
+              MINUS expr:e             
+	      	{: RESULT = 0 - e; :} 
+	      	%prec UMINUS
+              |
+	      /* Parenthesis */
+              LPAREN expr:e RPAREN     
+	      	{: RESULT = e; :} 
+	      ;
